@@ -1,0 +1,119 @@
+plugins {
+    id 'java-library'
+    id 'maven-publish'
+    id 'net.neoforged.moddev' version '2.0.107'
+    id 'idea'
+    id "me.modmuss50.mod-publish-plugin" version "0.8.4"
+}
+
+version = mod_version + "+" + stonecutter.current.version
+group = mod_group_id
+
+repositories {
+    maven {url = "https://maven.fzzyhmstrs.me/"}
+    maven {url = "https://thedarkcolour.github.io/KotlinForForge/"}
+}
+
+base {
+    archivesName = mod_id
+}
+
+java.toolchain.languageVersion = JavaLanguageVersion.of(21)
+
+neoForge {
+    version = property("neo_version")
+    parchment {
+        mappingsVersion = property("parchment_mappings_version")
+        minecraftVersion = stonecutter.current.version
+    }
+
+    runs {
+        client {
+            client()
+            systemProperty 'neoforge.enabledGameTestNamespaces', project.mod_id
+        }
+
+        server {
+            server()
+            programArgument '--nogui'
+            systemProperty 'neoforge.enabledGameTestNamespaces', project.mod_id
+        }
+
+        configureEach {
+            systemProperty 'forge.logging.markers', 'REGISTRIES'
+            logLevel = org.slf4j.event.Level.DEBUG
+        }
+    }
+
+    mods {
+        "${mod_id}" {
+            sourceSet(sourceSets.main)
+        }
+    }
+}
+
+sourceSets.main.resources { srcDir 'src/generated/resources' }
+
+configurations {
+    runtimeClasspath.extendsFrom localRuntime
+}
+
+dependencies {
+    implementation "me.fzzyhmstrs:fzzy_config:${property("fzzy_version")}+neoforge"
+}
+
+tasks.withType(ProcessResources).configureEach {
+    var replaceProperties = [
+            minecraft_version      : stonecutter.current.version,
+            minecraft_version_range: minecraft_version_range,
+            neo_version            : neo_version,
+            loader_version_range   : loader_version_range,
+            mod_id                 : mod_id,
+            mod_name               : mod_name,
+            mod_license            : mod_license,
+            mod_version            : mod_version,
+            mod_authors            : mod_authors,
+            mod_description        : mod_description
+    ]
+    inputs.properties replaceProperties
+
+    filesMatching(['META-INF/neoforge.mods.toml']) {
+        expand replaceProperties
+    }
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+}
+
+idea {
+    module {
+        downloadSources = true
+        downloadJavadoc = true
+    }
+}
+
+publishMods {
+    file = jar.archiveFile
+    changelog = file(getRootDir().path + "/CHANGELOG.md").text
+    type = STABLE
+    modLoaders.add("neoforge")
+    displayName = project.mod_version + " for NeoForge " + stonecutter.current.version
+
+    modrinth {
+        accessToken = providers.environmentVariable("MR_KEY")
+        projectId = "projectId"
+        minecraftVersions.add(stonecutter.current.version)
+        requires("fzzy-config")
+    }
+
+    curseforge {
+        accessToken = providers.environmentVariable("CF_KEY")
+        projectId = "projectId"
+        minecraftVersions.add(stonecutter.current.version)
+        javaVersions.add(JavaVersion.VERSION_21)
+        clientRequired = true
+        serverRequired = true
+        requires("fzzy-config")
+    }
+}

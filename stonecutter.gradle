@@ -1,0 +1,14 @@
+plugins {
+    id "dev.kikugie.stonecutter"
+}
+stonecutter.active "1.21.1"
+
+tasks.register("activeClient") {
+    group = "mod development"
+    dependsOn(":${stonecutter.current.project}:runClient")
+}
+
+tasks.register("activeServer") {
+    group = "mod development"
+    dependsOn(":${stonecutter.current.project}:runServer")
+}
