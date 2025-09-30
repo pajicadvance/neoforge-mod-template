@@ -15,7 +15,7 @@ import org.slf4j.LoggerFactory;
 public class Main {
     public static final String MOD_ID = "modid";
     private static final Logger LOGGER = LoggerFactory.getLogger("modname");
-    private static final boolean DEBUG = !FMLLoader.isProduction();
+    private static final boolean DEBUG = !FMLLoader/*? if > 1.21.1 {*//*.getCurrent()*//*?}*/.isProduction();
     public static final ResourceLocation CONFIG_RL = withModNamespace("config");
     public static ModConfig CONFIG = ConfigApiJava.registerAndLoadConfig(ModConfig::new);
 
