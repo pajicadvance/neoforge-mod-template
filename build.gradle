@@ -1,7 +1,7 @@
 plugins {
     id 'java-library'
     id 'maven-publish'
-    id 'net.neoforged.moddev' version '2.0.107'
+    id 'net.neoforged.moddev' version '2.0.112'
     id 'idea'
     id "me.modmuss50.mod-publish-plugin" version "0.8.4"
 }
@@ -12,6 +12,7 @@ group = mod_group_id
 repositories {
     maven {url = "https://maven.fzzyhmstrs.me/"}
     maven {url = "https://thedarkcolour.github.io/KotlinForForge/"}
+    maven {url = "https://repo.nyon.dev/releases"}
 }
 
 base {
